@@ -19,7 +19,7 @@ async def send_booking_email(event):
     # Customize sender (must match a verified sender domain in MailerSend)
     mail_from = {
         "name": "Test Notification",
-        "email": "MS_ne90Ia@test-65qngkddwojlwr12.mlsender.net",  # Replace with your verified sender address
+        "email": os.getenv('MAILERSEND_DOMAIN'),  # Replace with your verified sender address
     }
 
     # Set recipient using event data
