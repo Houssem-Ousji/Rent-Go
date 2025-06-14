@@ -81,7 +81,12 @@ Depending on your framework:
 uvicorn main:app --reload
 ```
 ---
+## 🚀 4. Run the Project with Docker Compose
 
+```bash
+docker-compose up -d
+```
+---
 ## 🧪 5. Test API Using Postman
 
 ### 🔔 POST `/notify` — Send Email/SMS Notification
