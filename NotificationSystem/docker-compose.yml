@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: rentgo-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: history
+    volumes:
+      - mongo_data:/data/db
+
+  notification-service:
+    image: houssemousji/rentgo-notification:latest
+    container_name: rentgo-notification
+    ports:
+      - "8000:8000"
+    environment:
+      MAILERSEND_API_KEY: ${MAILERSEND_API_KEY}  # Loaded from .env file
+      MONGO_URI: mongodb://mongo:27017/history   # Mongo hostname = service name
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:

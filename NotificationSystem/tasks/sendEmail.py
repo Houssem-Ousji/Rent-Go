@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 # Initialize MailerSend client
 mailer = emails.NewEmail(os.getenv('MAILERSEND_API_KEY'))
 
-async def send_booking_email(event):
+async def send_email(event):
+    eventType = event.get("type")
     mail_body = {}
 
     # Customize sender (must match a verified sender domain in MailerSend)
@@ -37,14 +38,25 @@ async def send_booking_email(event):
     }
 
     # Email content
-    subject = "Booking Confirmation"
-    html_content = f"""
+    if(eventType == "booking_confirmation"):
+        subject = "Booking Confirmation"
+        html_content = f"""
         <h2>Hello {event.get('name', 'Customer')},</h2>
         <p>Your booking is confirmed for <strong>{event.get('booking_date')}</strong>.</p>
         <p>Thank you for using our service!</p>
     """
-    plaintext_content = f"Hello {event.get('name')}, your booking is confirmed for {event.get('booking_date')}."
-
+        plaintext_content = f"Hello {event.get('name')}, your booking is confirmed for {event.get('booking_date')}."
+    elif(eventType == "pickup_reminder"):
+        subject = "Pick Up Reminder"
+        html_content = f"""
+        <h2>Hello {event.get('name', 'Customer')},</h2>
+        <p>This is a reminder for your upcoming pickup on <strong>{event.get('pickup_date')}</strong>.</p>
+        <p>Thank you for using our service!</p>
+    """
+        plaintext_content = f"Hello {event.get('name')}, this is a reminder for your upcoming pickup on {event.get('pickup_date')}."
+    else:
+        logger.error(f"❌ Unsupported event type: {eventType}")
+        return
     # Populate mailer fields
     mailer.set_mail_from(mail_from, mail_body)
     mailer.set_mail_to(recipients, mail_body)
@@ -55,8 +67,12 @@ async def send_booking_email(event):
 
     try:
         response = mailer.send(mail_body)
-        print("📨 Email send status:", response)
-        print("✅ EMAIL sent successfully.")
+        status_code = int(response.split()[0])
+        if 200 <= int(status_code) < 300:
+            print("📨 Email send status:", response)
+            print("✅ EMAIL sent successfully.")
+        else:
+            logger.error(f"❌ Failed to send email. Response: {response}")
     except Exception as e:
         logger.error(f"❌ Failed to send email: {e}")
 
