@@ -6,7 +6,7 @@ from bson import ObjectId
 from datetime import datetime
 app = FastAPI()
 
-#Payment Model
+#Payment Model Schema de bd mongo
 class Payment(BaseModel):
     userId: str
     productId: str
