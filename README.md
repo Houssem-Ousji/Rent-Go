@@ -13,7 +13,7 @@ This microservice manages admin authentication, user and car management, booking
 - 🎁 Discount coupon creation with PDF generation
 - 🧠 Booking data analysis with charts
 - ☁️ MongoDB Atlas integration with Mongoose
-- 📦 Modular and scalable Node.js architecture
+- 🐳 Docker support for easy deployment
 
 ---
 
@@ -34,19 +34,22 @@ This microservice manages admin authentication, user and car management, booking
 ```
 admin-auth-service/
 │
-├── models/              # Mongoose models (Admin, User, Car, Booking, Discount)
-├── controllers/         # Core logic for each entity
-├── routes/              # Express route files
-├── middlewares/         # JWT auth middleware
-├── utils/               # Helper files (PDF, email, CSV, charts)
+├── models/
+├── controllers/
+├── routes/
+├── middlewares/
+├── utils/
 │   ├── generateCouponPdf.js
 │   ├── generateBookingReportPdf.js
 │   ├── exportCsv.js
 │   ├── charts.js
 │   └── sendEmail.js
-├── exports/             # Exported CSV files
-├── .env                 # Environment variables
-├── server.js            # App entry point
+├── exports/
+├── .env
+├── Dockerfile
+├── .dockerignore
+├── server.js
+├── package.json
 └── README.md
 ```
 
@@ -73,9 +76,44 @@ EMAIL_PASS=your_app_password
 
 ---
 
-## 🔐 Authentication
+## 🐳 Docker Setup
 
-Admins login via:
+### 1. Create `Dockerfile`
+
+```Dockerfile
+FROM node:18
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+### 2. Create `.dockerignore`
+
+```
+node_modules
+.env
+```
+
+### 3. Build Docker Image
+
+```bash
+docker build -t admin-auth-service .
+```
+
+### 4. Run the Container
+
+```bash
+docker run -d --name admin-auth -p 3000:3000 --env-file .env admin-auth-service
+```
+
+> 📝 Make sure MongoDB Atlas allows access from Docker’s IP.
+
+---
+
+## 🔐 Authentication
 
 ```http
 POST /api/auth/login
@@ -85,7 +123,7 @@ POST /api/auth/login
 }
 ```
 
-Token is returned and must be sent in headers:
+Use the returned token as:
 
 ```
 Authorization: Bearer <token>
@@ -93,28 +131,12 @@ Authorization: Bearer <token>
 
 ---
 
-## 👤 Admin Features
-
-Admins can:
-
-- ✅ Login and manage own session
-- 👥 Create / Update / Delete Users
-- 🚗 Create / Update / Delete Cars
-- 🎁 Create discount coupons
-- 📄 Generate booking reports
-- 📧 Send email reports to self or clients
-
----
-
 ## 🎁 Discount Coupon
-
-**Create discount coupon** with PDF + email:
 
 ```http
 POST /api/discounts
 Headers:
   Authorization: Bearer <admin_token>
-
 Body:
 {
   "code": "SUMMER25",
@@ -123,22 +145,17 @@ Body:
 }
 ```
 
-A PDF coupon is generated and emailed. It contains:
+PDF + Email with:
 
-- Coupon code
-- Discount %
-- Valid until date
-- Admin who created it
-- RENT&GO header:
-  - Site: www.rentandgo.com
-  - Phone: 71 717 171
-  - Address: Road 5, Tunis, Tunisia
+- Code
+- %
+- Validity
+- Admin info
+- RENT&GO branding (site, phone, address)
 
 ---
 
 ## 📄 Booking Reports
-
-Admins can generate advanced reports with analytics and charts:
 
 ```http
 GET /api/bookings/report
@@ -146,23 +163,17 @@ Headers:
   Authorization: Bearer <admin_token>
 ```
 
-Generates:
+Output:
 
-- PDF report:
-  - Total bookings
-  - Confirmed / Cancelled / Pending
-  - Bookings by car, month, weekday
-  - Top booked cars
-  - Average duration
-  - Pie + bar charts
-- CSV export of all bookings
-- Both files emailed to admin
+- PDF with stats, charts
+- CSV of raw data
+- Both emailed
 
 ---
 
 ## 🧪 Testing
 
-Use Postman or Swagger to test endpoints:
+Test endpoints:
 
 - `/api/auth/login`
 - `/api/users`
@@ -177,34 +188,19 @@ Use Postman or Swagger to test endpoints:
 ### Admin
 
 ```js
-{
-  username: String,
-  password: String (hashed),
-  role: 'admin' | 'superadmin'
-}
+{ username, password (hashed), role: 'admin' | 'superadmin' }
 ```
 
 ### Booking
 
 ```js
-{
-  clientName: String,
-  startTime: Date,
-  endTime: Date,
-  carId: ObjectId,
-  status: 'CONFIRMED' | 'CANCELLED' | 'PENDING'
-}
+{ clientName, startTime, endTime, carId, status }
 ```
 
 ### Discount
 
 ```js
-{
-  code: String,
-  validUntil: Date,
-  percentage: Number,
-  createdBy: ObjectId (Admin)
-}
+{ code, validUntil, percentage, createdBy }
 ```
 
 ---
@@ -216,18 +212,18 @@ Use Postman or Swagger to test endpoints:
 - [x] Booking report PDF + CSV
 - [x] Email notifications
 - [x] Discount coupon PDF
+- [x] Docker support
 - [ ] Swagger documentation
 - [ ] Unit tests
-- [ ] Role-based permissions
 
 ---
 
 ## 📧 Gmail Setup
 
-1. Enable 2FA on your Gmail
-2. Go to: https://myaccount.google.com/apppasswords
-3. Create a new app password for "Mail"
-4. Use that 16-digit password in `.env` as `EMAIL_PASS`
+1. Enable 2FA on Gmail
+2. Visit https://myaccount.google.com/apppasswords
+3. Create an app password
+4. Use it as `EMAIL_PASS` in `.env`
 
 ---
 
