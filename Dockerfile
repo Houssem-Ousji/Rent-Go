@@ -2,7 +2,7 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-COPY target/gateway.jar /app/gateway.jar
+COPY . .
 
 EXPOSE 8087
 
