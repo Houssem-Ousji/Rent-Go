@@ -2,9 +2,17 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from utils.db import connectToDatabse
 from tasks.handler import handle_notification
-        
-
-app = FastAPI()
+from py_eureka_client import eureka_client as eureka_client
+from contextlib import asynccontextmanager   
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await eureka_client.init_async(
+        eureka_server="http://eureka:8761/eureka",
+        app_name="notification",
+        instance_port=8000
+    )
+    yield
+app = FastAPI(lifespan=lifespan)
 
 class NotificationEvent(BaseModel):
     type: str
