@@ -12,7 +12,7 @@ const allowRoles = require('../middlewares/roleMiddleware');
 const router = express.Router();
 
 // Admin-only routes
-router.use(protect, allowRoles('admin', 'superadmin'));
+// router.use(protect, allowRoles('admin', 'superadmin'));
 
 router.post('/', createDiscount);              // Create new
 router.get('/', getAllDiscounts);              // View all

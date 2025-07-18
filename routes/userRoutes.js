@@ -13,8 +13,8 @@ const allowRoles = require('../middlewares/roleMiddleware'); // check role
 
 const router = express.Router();
 
-router.use(protect);
-router.use(allowRoles('admin', 'superadmin')); // only admins can manage users
+// router.use(protect);
+// router.use(allowRoles('admin', 'superadmin')); // only admins can manage users
 
 router.post('/', createUser);
 router.get('/', getUsers);

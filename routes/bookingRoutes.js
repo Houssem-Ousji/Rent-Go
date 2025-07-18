@@ -14,7 +14,7 @@ const allowRoles = require('../middlewares/roleMiddleware');
 const router = express.Router();
 
 // All routes require admin or superadmin
-router.use(protect, allowRoles('admin', 'superadmin'));
+// router.use(protect, allowRoles('admin', 'superadmin'));
 
 router.get('/', getAllBookings);
 router.get('/:id', getBookingById);

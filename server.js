@@ -24,5 +24,9 @@ app.use('/api/', userAuthRoutes);
 app.use('/api/discounts', discountRoutes);
 
 
-const PORT = process.env.PORT || 5000;
+const {expressjwt} = require('express-jwt');
+const jwksRsa = require('jwks-rsa');
+
+
+const PORT = process.env.PORT || 5057;
 app.listen(PORT, () => console.log(`Admin Auth Service running on port ${PORT}`));
